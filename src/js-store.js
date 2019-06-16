@@ -1,43 +1,32 @@
-import WebStorage from './web-storage';
-
 const DEFAULTS = {
   type: 'session',
   key: null,
 };
 
 export default class JsStore {
-  constructor(options = {}) {
-    this.options = JsStore.assign({}, DEFAULTS, options)
-    this.instance = JsStore.instance(this.options);
+  constructor(opts = {}) {
+    this.opts = JsStore.assign({}, DEFAULTS, opts)
+    this.inst = new WebStorage(this.opts);
   }
 
-  get(defaults = null) {
-    return this.instance.get(this.options.key) || defaults;
+  get(defs = null) {
+    return this.inst.get(this.opts.key) || defs;
   }
 
   set(data) {
-    return this.instance.set(this.options.key, data);
+    this.inst.set(this.opts.key, data);
   }
 
   remove() {
-    return this.instance.remove(this.options.key);
-  }
-
-  static instance(options) {
-    if (options.type == 'session' || options.type == 'local') {
-      return new WebStorage(options);
-    } else {
-      console.error(`Invalid type: ${type}`);
-    }
+    this.inst.remove(this.opts.key);
   }
 
   static getDefaults() {
     return DEFAULTS;
   }
 
-  static setDefaults(options) {
-    JsStore.assign(DEFAULTS, options);
-    return DEFAULTS;
+  static setDefaults(opts) {
+    return JsStore.assign(DEFAULTS, opts);
   }
 
   static assign(...objs) {
@@ -47,5 +36,38 @@ export default class JsStore {
       });
       return ret;
     });
+  }
+}
+
+class WebStorage {
+  constructor(opts = {}) {
+    if (opts.type == 'local') {
+      this.storage = window.localStorage;
+    } else if (opts.type == 'session') {
+      this.storage = window.sessionStorage;
+    }
+  }
+
+  get(key) {
+    try {
+      let json = this.storage.getItem(key);
+      if (!json) return null;
+      return JSON.parse(json)
+    } catch(e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  set(key, value) {
+    try {
+      this.storage.setItem(key, JSON.stringify(value));
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  remove(key) {
+    this.storage.removeItem(key);
   }
 }

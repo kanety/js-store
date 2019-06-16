@@ -11,23 +11,23 @@ describe('js-store', () => {
         value = { test: 'test' };
       });
 
-      it('saves and loads value', () => {
+      it('gets and sets value', () => {
         store.set(value);
         expect(store.get()).toEqual(value);
       });
 
-      it('loads with default value', () => {
+      it('gets with default', () => {
         expect(store.get('test')).toEqual('test');
       });
 
-      it('clears value', () => {
+      it('removes value', () => {
         store.set(value);
         store.remove();
         expect(store.get()).toEqual(null);
       });
 
       it('skips unparsable value', () => {
-        store.instance.storage.setItem('key', 'value');
+        store.inst.storage.setItem('key', 'value');
         expect(store.get()).toEqual(null);
       });
 
@@ -36,16 +36,6 @@ describe('js-store', () => {
         store.set(value);
         expect(store.get()).toEqual(null);
       });
-    });
-  });
-
-  describe('default value', () => {
-    it('gets and sets defaults', () => {
-      let defaults = JsStore.getDefaults();
-      expect(defaults.type).toEqual('session');
-
-      defaults = JsStore.setDefaults({type: 'local'});
-      expect(defaults.type).toEqual('local');
     });
   });
 });
