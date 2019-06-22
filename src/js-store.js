@@ -1,11 +1,9 @@
-const DEFAULTS = {
-  type: 'session',
-  key: null,
-};
-
 export default class JsStore {
   constructor(opts = {}) {
-    this.opts = JsStore.assign({}, DEFAULTS, opts)
+    this.opts = {
+      type: opts.type || 'session',
+      key: opts.key
+    }
     this.inst = new WebStorage(this.opts);
   }
 
@@ -20,32 +18,14 @@ export default class JsStore {
   remove() {
     this.inst.remove(this.opts.key);
   }
-
-  static getDefaults() {
-    return DEFAULTS;
-  }
-
-  static setDefaults(opts) {
-    return JsStore.assign(DEFAULTS, opts);
-  }
-
-  static assign(...objs) {
-    return objs.reduce((ret, obj) => {
-      Object.keys(obj).forEach((key) => {
-        ret[key] = obj[key];
-      });
-      return ret;
-    });
-  }
 }
 
-class WebStorage {
+export class WebStorage {
   constructor(opts = {}) {
-    if (opts.type == 'local') {
-      this.storage = window.localStorage;
-    } else if (opts.type == 'session') {
-      this.storage = window.sessionStorage;
-    }
+    this.storage = {
+      local: window.localStorage,
+      session: window.sessionStorage
+    }[opts.type];
   }
 
   get(key) {
